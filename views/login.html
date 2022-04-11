@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>OAuth 2.0 Login</title>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+
+  <div style="width:800px; margin:200px auto;">
+
+    <form>
+      <div>
+        <label>Username</label> <input type="text" name="username" id="username" />
+      </div>
+      <div>
+        <label>Password</label> <input type="password" name="password" id="password" />
+      </div>
+
+      <button type="button" onclick="Login()">Login</button>
+
+    </form>
+  </div>
+  <div style="width:1000px; margin:0 auto;" id="result">
+
+
+  </div>
+
+  <script>
+
+    const urlQueryString = window.location.search.substring(1);
+
+    window.addEventListener('load', function () {
+
+      const appId = "622ec022672ae277151baea9"
+      const originDomain = "http://localhost:3000"
+
+      const appIdUrl = `http://localhost:3001/api-id/verify?app_id=${appId}&origin_domain=${originDomain}`
+
+      axios.get(appIdUrl, {
+        headers: {
+          'Content-Type': 'application/json',
+          'service-code': 'sdk_sample'
+        },
+      }).then((result) => {
+        if (!result.data.is_verified) {
+          const div = document.getElementById('result');
+          div.innerHTML += JSON.stringify(result.data.message);
+          throw new Error('test')
+        }
+
+        const cookies = document.cookie.split(';')
+
+        const getMysabayTokenCookie = cookies.find((item) => { return item.search('sabay_access_token') > -1 })
+        console.log('1111111111111111111111111', cookies)
+        
+        if (getMysabayTokenCookie) {
+
+          const redirectUri = "redirect_uri=http://localhost:3000/redirect"
+          const getMysabayToken = getMysabayTokenCookie.split('=')[1]
+
+          const queryData = `&${redirectUri}&access_token=${getMysabayToken}`
+          const grantQuery = urlQueryString + encodeURIComponent(queryData)
+          const urlScope = "http://localhost:3000/scope?"
+
+          const grantUrl = urlScope + grantQuery
+          window.location.replace(grantUrl);
+        }
+
+        return result.data
+      }).catch(function (error) {
+        console.log("Booo==========================", error);
+      });
+    })
+
+    function Login() {
+
+      const usernameEle = document.getElementById('username');
+      const passwordEle = document.getElementById('password');
+
+      const username = usernameEle.value
+      const password = passwordEle.value
+      const theUrl = "http://localhost:3001/login"
+      const query = encodeURIComponent("app_id=622ec022672ae277151baea9&origin_domain=http://localhost:3000")
+
+
+
+      axios.post(theUrl, { username, password, app_id:"622ec022672ae277151baea9" }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'service-code': 'kreusna7'
+        },
+      }).then(function (response) {
+        console.log('response==', response)
+        document.cookie = "sabay_access_token=" + response.data.access_token;
+
+        const redirectUri = "redirect_uri=http://localhost:3000/redirect"
+        const queryData = `&${redirectUri}&access_token=${response.data.access_token}`
+        const grantQuery = urlQueryString + encodeURIComponent(queryData)
+        const urlScope = "http://localhost:3000/scope?"
+
+        const grantUrl = urlScope + grantQuery
+        window.location.replace(grantUrl);
+
+      }).catch(function (error) {
+        console.log("Booo==========================", error);
+      });
+
+    }
+
+  </script>
+
+</body>
+
+</html>

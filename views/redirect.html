@@ -1,0 +1,61 @@
+<html>
+
+<head>
+  <title>OAuth 2.0 Grant Request</title>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+
+  <div>
+
+    <div id="result" style="width:1000px; margin:0 auto;">
+
+    </div>
+
+
+  </div>
+
+  <script>
+
+    window.addEventListener('load', function () {
+
+      const appId = "622ec022672ae277151baea9"
+      const originDomain = "http://localhost:3000"
+
+      const appIdUrl = `http://localhost:3001/auth/token`
+
+      const cookies = document.cookie.split(';')
+
+      const getMysabayTokenCookie = cookies.find((item) => { return item.search('sabay_access_token') > -1 })
+      const getHashSecretCookie = cookies.find((item) => { return item.search('hash_secret') > -1 })
+
+      const codeVerifier = getHashSecretCookie.split('=')[1]
+      
+      const queryString = window.location.search.substring(1);
+      const code = queryString.split("=")[1]
+      
+      axios.post(appIdUrl,{
+        code,
+        code_verifier: codeVerifier,
+        grant_type: 'authorization_token'
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'app_id': '622ec022672ae277151baea9'
+        },
+      }).then((result) => {
+      
+          const div = document.getElementById('result');
+          div.innerHTML += JSON.stringify(result.data);
+       
+      }).catch(function (error) {
+        console.log("Booo==========================", error);
+      });
+    })
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>OAuth 2.0 Scope</title>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://releases.transloadit.com/uppy/v2.2.3/uppy.min.js"></script>
+</head>
+
+<body>
+
+  <div style="width:800px; margin:200px auto;">
+
+    <div style="width:150px; margin:0 auto;"><input type="checkbox" name="prfoile" value="Bike" checked>
+      <label for="profile">Profile</label><br></div>
+     <div style="width:150px; margin:0 auto;"><button type="button" onclick="Scope()">Add Scope</button></div>  
+
+  </div>
+
+  <div id="token" style="width:1000px; margin:0 auto;" >
+
+  </div>
+
+
+  <script>
+    function Scope() {
+      const scopeString = "&scope=profile&response_type=token"
+      const scopeQuery = encodeURIComponent(scopeString)
+      const queryString = window.location.search.substring(1);
+      const query = queryString + scopeQuery
+      const theUrl = "http://localhost:3001/oauth?"+ query
+
+      //request access_token or grant_token
+      axios.get(theUrl, {
+          headers: {
+            'Content-Type': 'application/json',
+            'service-code': 'kreusna7'
+          },
+        }).then(function (response) {
+          if (response.data.code){
+            window.location.replace("http://localhost:3000/redirect?code="+ response.data.code);
+          }
+          
+          const div = document.getElementById('token');
+          div.innerHTML += JSON.stringify(response.data);
+          return response.data
+
+        }).catch(function (error) {
+          console.log("Booo==========================", error);
+        });
+
+    }
+
+
+  </script>
+
+</body>
+
+</html>

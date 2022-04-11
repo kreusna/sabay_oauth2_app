@@ -1,0 +1,35 @@
+<html>
+
+<head>
+  <title>OAuth 2.0</title>
+  <script src="https://cdn.jsdelivr.net/npm/node-forge@1.0.0/dist/forge.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+</head>
+
+<body>
+  <div style="width:800px; margin:200px auto;">
+    <button onclick="myFunction()" name="login">Mysabay </button>
+  </div>
+ 
+
+
+  <script>
+    function myFunction() {
+      var url = "http://localhost:3000/login?"
+
+      const code = CryptoJS.lib.WordArray.random(45).toString()
+      const createHash = forge.md.sha256.create();
+      createHash.update(code);
+      const hashSecret = createHash.digest().toHex()
+
+      document.cookie = `hash_secret=${code}; expires=Thu, 15 Apr 2022 12:00:00 UTC` ;
+
+      const query = encodeURIComponent(`app_id=622ec022672ae277151baea9&origin_domain=http://localhost:3000&code_challenge=${hashSecret}&code_challenge_method=sha256`)
+      url = url + query
+      location.href = url;
+    }
+
+  </script>
+</body>
+
+</html>
